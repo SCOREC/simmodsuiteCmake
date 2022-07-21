@@ -40,7 +40,7 @@ target_include_directories(SimModSuite INTERFACE
 
 if (UNIX AND NOT APPLE)
   find_package(Threads REQUIRED)
-  target_link_libraries(SimModSuite INTERFACE Threads)
+  target_link_libraries(SimModSuite INTERFACE Threads::Threads)
 endif()
 
 add_executable(testSim testSim.cpp)
