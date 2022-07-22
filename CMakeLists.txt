@@ -6,16 +6,35 @@ if(SIM_MPI MATCHES "^$")
   message(FATAL_ERROR "SIM_MPI is not defined... libSimPartitionWrapper-$SIM_MPI.a should exist in the SimModSuite lib directory")
 endif()
 
+function(getVersion simVersionFile)
+  file(STRINGS ${simVersionFile} lines)
+
+  set(majorLine ${lines})
+  list(FILTER majorLine INCLUDE REGEX ".*SIMMODSUITE_MAJOR_VERSION.*")
+  string(REPLACE " " ";" majorList ${majorLine})
+  list(GET majorList 2 major)
+  set(SIMMODSUITE_MAJOR_VERSION "${major}" PARENT_SCOPE)
+
+  set(minorLine ${lines})
+  list(FILTER minorLine INCLUDE REGEX ".*SIMMODSUITE_MINOR_VERSION.*")
+  string(REPLACE " " ";" minorList ${minorLine})
+  list(GET minorList 2 minor)
+  set(SIMMODSUITE_MINOR_VERSION "${minor}" PARENT_SCOPE)
+
+  string(JOIN "." dot ${major} ${minor})
+  set(SIMMODSUITE_DOT_VERSION "${dot}" PARENT_SCOPE)
+endfunction()
+
 #FIXME change the name
 macro(simLibCheck libs isRequired)
   foreach(lib ${libs})
     unset(simlib CACHE)
-    find_library(simlib "${lib}" PATHS ${SIMMETRIX_LIB_DIR})
+    find_library(simlib "${lib}")
     if(simlib MATCHES "^simlib-NOTFOUND$")
       if(${isRequired})
-        message(FATAL_ERROR "simmetrix library ${lib} not found in ${SIMMETRIX_LIB_DIR}")
+        message(FATAL_ERROR "simmetrix library ${lib} not found")
       else()
-        message("simmetrix library ${lib} not found in ${SIMMETRIX_LIB_DIR}")
+        message("simmetrix library ${lib} not found")
       endif()
     else()
       set("SIMMODSUITE_${lib}_FOUND" TRUE CACHE INTERNAL "SimModSuite library present")
@@ -37,26 +56,21 @@ macro(getSimCadLib searchPath libName lib check)
   set(${lib} "${cadLib}")
 endmacro(getSimCadLib)
 
-#FIXME pick a way to set these and find the libs - currently require both
-#CMAKE_PREFIX_PATH (or some other default search path) and SIMMETRIX_SIMMODSUITE_DIR
-set(SIMMODSUITE_INCLUDE_DIR ${SIMMETRIX_SIMMODSUITE_DIR}/include)
-set(SIMMODSUITE_INSTALL_DIR ${SIMMETRIX_SIMMODSUITE_DIR})
-
-#FIXME read the version from ${SIMMODSUITE_INCLUDE_DIR}/SimModSuiteVersion.h
-string(REGEX REPLACE
-  "([0-9]+[.][0-9]+)-([0-9]+)"
-  "\\1.\\2" SIM_DOT_VERSION
-  "${SIM_VERSION}")
-
-#SIMMODSUITE_MAJOR_VERSION
-#SIMMODSUITE_MINOR_VERSION
-#SIM_DOT_VERSION - VERSION_LESS and VERSION_GREATER need '.' delimited version strings.
-#SIM_VERSION - read from 
-
 set(SIMMODSUITE_LIBS "")
+
+find_file(simVersion SimModSuiteVersion.h REQUIRED)
+message(STATUS "simVersion ${simVersion}")
+getVersion(${simVersion})
+message(STATUS "minor ${SIMMODSUITE_MINOR_VERSION}")
+message(STATUS "major ${SIMMODSUITE_MAJOR_VERSION}")
+message(STATUS "dot ${SIMMODSUITE_DOT_VERSION}")
 
 set(SIM_BOOTSTRAP_LIB_NAME SimModel)
 simLibCheck("${SIM_BOOTSTRAP_LIB_NAME}" TRUE)
+
+#FIXME pick a way to set these and find the libs - currently require both
+#CMAKE_PREFIX_PATH (or some other default search path) and SIMMETRIX_SIMMODSUITE_DIR
+set(SIMMODSUITE_INSTALL_DIR ${SIMMETRIX_SIMMODSUITE_DIR})
 
 string(FIND "${SIMMODSUITE_LIBS}" "/lib/" archStart)
 string(FIND "${SIMMODSUITE_LIBS}" "/libSim" archEnd)
