@@ -1,11 +1,18 @@
 cmake_minimum_required(VERSION 3.20)
 project(simmetrix-simmodsuite)
 
-set(SIM_ARCH "" CACHE STRING "Architecture/OS string for libraries (e.g., x64_rhel7_gcc48)")
+set(SIM_ARCHOS "" CACHE STRING "Architecture/OS string for libraries (e.g., x64_rhel7_gcc48)")
+if(SIM_ARCHOS MATCHES "^$")
+  message(FATAL_ERROR "SIM_ARCHOS is not defined... $SIM_ARCHOS should be a "
+  "sub-directory of the the SimModSuite 'lib' directory")
+endif()
+message(STATUS "SIM_ARCHOS ${SIM_ARCHOS}")
 set(SIM_MPI "" CACHE STRING "MPI implementation used for SimPartitionWrapper")
 if(SIM_MPI MATCHES "^$")
-  message(FATAL_ERROR "SIM_MPI is not defined... libSimPartitionWrapper-$SIM_MPI.a should exist in the SimModSuite lib directory")
+  message(FATAL_ERROR "SIM_MPI is not defined... libSimPartitionWrapper-$SIM_MPI.a "
+  "should exist in the SimModSuite lib directory")
 endif()
+message(STATUS "SIM_MPI ${SIM_MPI}")
 
 function(getVersion simVersionFile)
   file(STRINGS ${simVersionFile} lines)
@@ -30,7 +37,7 @@ endfunction()
 macro(simLibCheck libs isRequired)
   foreach(lib ${libs})
     unset(simlib CACHE)
-    find_library(simlib "${lib}" PATH_SUFFIXES lib/${SIM_ARCH})
+    find_library(simlib "${lib}" PATH_SUFFIXES lib/${SIM_ARCHOS})
     if(simlib MATCHES "^simlib-NOTFOUND$")
       if(${isRequired})
         message(FATAL_ERROR "simmetrix library ${lib} not found")
@@ -70,13 +77,6 @@ message(STATUS "dot ${SIMMODSUITE_DOT_VERSION}")
 
 set(SIM_BOOTSTRAP_LIB_NAME SimModel)
 simLibCheck("${SIM_BOOTSTRAP_LIB_NAME}" TRUE)
-
-string(FIND "${SIMMODSUITE_LIBS}" "/lib/" archStart)
-string(FIND "${SIMMODSUITE_LIBS}" "/libSim" archEnd)
-math(EXPR archStart "${archStart}+5")
-math(EXPR len "${archEnd}-${archStart}")
-string(SUBSTRING "${SIMMODSUITE_LIBS}" "${archStart}" "${len}" SIM_ARCHOS)
-message(STATUS "SIM_ARCHOS ${SIM_ARCHOS}")
 
 #FIXME - getSimCadLib is likely broken due to its use of SIMMODSUITE_INSTALL_DIR
 option(SIM_PARASOLID "Use Parasolid through Simmetrix" OFF)
