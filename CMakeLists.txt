@@ -159,9 +159,6 @@ else()
     "have been built without the xdr symbols.")
 endif()
 
-add_executable(testSim testSim.cpp)
-target_link_libraries(testSim SimModSuite)
-
 ## install
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)

@@ -7,10 +7,18 @@ CMake installer for Simmetrix SimModSuite
 cmake \
 -S simmodsuiteCmake \
 -B buildSimModSuite \
--DSIMMETRIX_SIMMODSUITE_DIR=/path/to/dir/where/simmodsuite/tarballs/were/extracted \
--DCMAKE_PREFIX_PATH=/path/to/simmodsuite/dir/with/libs \
+-DCMAKE_PREFIX_PATH=/path/to/simmodsuite/install/dir \
 -DSIM_MPI=mpiSuffix
+-DSIM_ARCHOS=[x64_rhel7_gcc48|x64_rhel8_gcc83]
 
-cmake --build buildSimModSuite
+cmake --build buildSimModSuite --target install
 ```
 
+## Example CMake package depending on SimModSuite
+
+```
+cmake \
+-S simmodsuiteCmake/example/build_cmake_installed/ \
+-B buildTestSim \
+-DCMAKE_PREFIX_PATH=/path/to/simmodsuite/install/dir
+```
