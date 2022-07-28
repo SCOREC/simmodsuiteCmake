@@ -140,7 +140,7 @@ foreach(lib ${SIMMODSUITE_LIBS})
 endforeach()
 target_include_directories(SimModSuite INTERFACE
   "$<BUILD_INTERFACE:${SIMMODSUITE_INCLUDE_DIR}>"
-  "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
+  "$<INSTALL_INTERFACE:${SIMMODSUITE_INCLUDE_DIR}>"
 )
 
 if (UNIX AND NOT APPLE)
@@ -161,4 +161,37 @@ endif()
 
 add_executable(testSim testSim.cpp)
 target_link_libraries(testSim SimModSuite)
+
+## install
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
+install(
+  TARGETS SimModSuite
+  EXPORT simmetrix-simmodsuite-targets
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+configure_package_config_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/config.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/simmetrix-simmodsuite-config.cmake"
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/simmetrix-simmodsuite
+)
+write_basic_package_version_file(
+  "${PROJECT_BINARY_DIR}/simmetrix-simmodsuite-config-version.cmake"
+  VERSION ${SIMMODSUITE_DOT_VERSION}
+  COMPATIBILITY AnyNewerVersion)
+
+install(FILES
+  "${PROJECT_BINARY_DIR}/simmetrix-simmodsuite-config.cmake"
+  "${PROJECT_BINARY_DIR}/simmetrix-simmodsuite-config-version.cmake"
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/simmetrix-simmodsuite)
+
+install(
+  EXPORT simmetrix-simmodsuite-targets
+  NAMESPACE simmetrix-simmodsuite::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/simmetrix-simmodsuite)
 
