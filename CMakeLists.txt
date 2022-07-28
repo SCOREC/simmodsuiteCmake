@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.20)
 project(simmetrix-simmodsuite)
 
 set(SIM_ARCH "" CACHE STRING "Architecture/OS string for libraries (e.g., x64_rhel7_gcc48)")
@@ -60,6 +60,8 @@ endmacro(getSimCadLib)
 set(SIMMODSUITE_LIBS "")
 
 find_file(simVersion SimModSuiteVersion.h REQUIRED)
+cmake_path(REMOVE_FILENAME simVersion OUTPUT_VARIABLE SIMMODSUITE_INCLUDE_DIR)
+message(STATUS "SIMMODSUITE_INCLUDE_DIR ${SIMMODSUITE_INCLUDE_DIR}")
 message(STATUS "simVersion ${simVersion}")
 getVersion(${simVersion})
 message(STATUS "minor ${SIMMODSUITE_MINOR_VERSION}")
@@ -69,10 +71,6 @@ message(STATUS "dot ${SIMMODSUITE_DOT_VERSION}")
 set(SIM_BOOTSTRAP_LIB_NAME SimModel)
 simLibCheck("${SIM_BOOTSTRAP_LIB_NAME}" TRUE)
 
-#FIXME pick a way to set these and find the libs - currently require both
-#CMAKE_PREFIX_PATH (or some other default search path) and SIMMETRIX_SIMMODSUITE_DIR
-set(SIMMODSUITE_INSTALL_DIR ${SIMMETRIX_SIMMODSUITE_DIR})
-
 string(FIND "${SIMMODSUITE_LIBS}" "/lib/" archStart)
 string(FIND "${SIMMODSUITE_LIBS}" "/libSim" archEnd)
 math(EXPR archStart "${archStart}+5")
@@ -80,6 +78,7 @@ math(EXPR len "${archEnd}-${archStart}")
 string(SUBSTRING "${SIMMODSUITE_LIBS}" "${archStart}" "${len}" SIM_ARCHOS)
 message(STATUS "SIM_ARCHOS ${SIM_ARCHOS}")
 
+#FIXME - getSimCadLib is likely broken due to its use of SIMMODSUITE_INSTALL_DIR
 option(SIM_PARASOLID "Use Parasolid through Simmetrix" OFF)
 if (SIM_PARASOLID)
   set(MIN_SIM_PARASOLID_VERSION 290)
@@ -140,7 +139,7 @@ foreach(lib ${SIMMODSUITE_LIBS})
   target_link_libraries(SimModSuite INTERFACE ${lib})
 endforeach()
 target_include_directories(SimModSuite INTERFACE
-  "$<BUILD_INTERFACE:${SIMMETRIX_SIMMODSUITE_DIR}/include>"
+  "$<BUILD_INTERFACE:${SIMMODSUITE_INCLUDE_DIR}>"
   "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 )
 
