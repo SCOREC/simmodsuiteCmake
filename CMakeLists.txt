@@ -148,5 +148,17 @@ if (UNIX AND NOT APPLE)
   target_link_libraries(SimModSuite INTERFACE Threads::Threads)
 endif()
 
+find_library(XDR_LIB tirpc)
+if(XDR_LIB)
+  message(STATUS "Found XDR_LIB ${XDR_LIB}")
+  target_link_libraries(SimModSuite INTERFACE ${XDR_LIB})
+else()
+  message(STATUS "The libtirpc library was not found.  It defines xdr symbols "
+    "(e.g., xdrmem_create) that are need by SimModSuite on systems using "
+    "glibc newer than 2.32.  Note, glibc starting with 2.26 could optionally "
+    "have been built without the xdr symbols.")
+endif()
+
 add_executable(testSim testSim.cpp)
 target_link_libraries(testSim SimModSuite)
+
