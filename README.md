@@ -1,7 +1,18 @@
 # simmodsuiteCmake
 CMake installer for Simmetrix SimModSuite
 
+This assumes that the user has extracted the SimModSuite tarballs.  That
+directory is referred to below as the SimModSuite install dir.
+
 ## Install
+
+The CMake config file may be installed alongside the extracted SimModSuite
+libraries and headers by passing the path to the SimModSuite install dir to
+`-DCMAKE_INSTALL_PREFIX`.
+A different location can also be used if you do not have write access to
+the SimModSuite install dir.
+The example commands below use the SimModSuite install dir for the install
+prefix.
 
 ```
 cmake \
