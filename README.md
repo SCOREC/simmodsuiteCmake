@@ -8,7 +8,7 @@ cmake \
 -S simmodsuiteCmake \
 -B buildSimModSuite \
 -DCMAKE_PREFIX_PATH=/path/to/simmodsuite/install/dir \
--DSIM_MPI=mpiSuffix
+-DSIM_MPI=mpiSuffix \
 -DSIM_ARCHOS=[x64_rhel7_gcc48|x64_rhel8_gcc83]
 
 cmake --build buildSimModSuite --target install
