@@ -66,7 +66,7 @@ endmacro(getSimCadLib)
 
 set(SIMMODSUITE_LIBS "")
 
-find_file(simVersion SimModSuiteVersion.h REQUIRED)
+find_file(simVersion SimModSuiteVersion.h PATH_SUFFIXES include REQUIRED)
 cmake_path(REMOVE_FILENAME simVersion OUTPUT_VARIABLE SIMMODSUITE_INCLUDE_DIR)
 message(STATUS "SIMMODSUITE_INCLUDE_DIR ${SIMMODSUITE_INCLUDE_DIR}")
 message(STATUS "simVersion ${simVersion}")
